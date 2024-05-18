@@ -33,6 +33,7 @@ dss.text("Set stepsize=10m")
 dss.text("Set number=288")
 
 # Explorando os atributos do circuito
+loadshapes = dss.loadshapes.names  # Comando para descobrir quais são os loadshapes do circuito
 buses = dss.circuit.buses_names  # Comando para descobrir quais são as barras do circuito
 lines = dss.lines.names          # Comando para descobrir quais são as linhas do circuito
 loads = dss.loads.names          # Comando para descobrir quais são as cargas do circuito
@@ -87,11 +88,10 @@ monitor_q_a = np.array(monitor.channel(2))  # Supondo Qa = canal2
 monitor_q_b = np.array(monitor.channel(4))  # Supondo Qb = canal4
 monitor_q_c = np.array(monitor.channel(6))  # Supondo Qc = canal6
 
-# Calculando potência aparente
-monitor_s_a = np.sqrt(monitor_p_a**2 + monitor_q_a**2)
-monitor_s_b = np.sqrt(monitor_p_b**2 + monitor_q_b**2)
-monitor_s_c = np.sqrt(monitor_p_c**2 + monitor_q_c**2)
-monitor_stotal = monitor_s_a + monitor_s_b + monitor_s_c
+# Calculando a potência ativa, reativa e aparente total
+monitor_ptotal = (monitor_p_a + monitor_p_b + monitor_p_c)
+monitor_qtotal = (monitor_q_a + monitor_q_b + monitor_q_c)
+monitor_stotal = np.sqrt(monitor_ptotal**2 + monitor_qtotal**2)
 
 # Convertendo dados para DataFrames
 df1 = pd.DataFrame({
@@ -102,22 +102,15 @@ df1 = pd.DataFrame({
 })
 df2 = pd.DataFrame({
     'tempo': time_hours,
-    'kW_a': monitor_p_a,
-    'kW_b': monitor_p_b,
-    'kW_c': monitor_p_c
+    'kW_total': monitor_ptotal,
 })
 df3 = pd.DataFrame({
     'tempo': time_hours,
-    'kvar_a': monitor_q_a,
-    'kvar_b': monitor_q_b,
-    'kvar_c': monitor_q_c
+    'kvar_total': monitor_qtotal,
 })
 df4 = pd.DataFrame({
     'tempo': time_hours,
-    'kVA_a': monitor_s_a,
-    'kVA_b': monitor_s_b,
-    'kVA_c': monitor_s_c,
-    'kVA_total': monitor_stotal
+    'kVA_total': monitor_stotal,
 })
 
 # Filtrando para mostrar apenas as últimas 24 horas
@@ -142,9 +135,9 @@ plt.axhspan(133, 135, color='yellow', alpha=0.3)  # Faixa de tensão precária
 plt.axhspan(110, 117, color='yellow', alpha=0.3)  # Faixa de tensão precária
 plt.axhspan(135, 150, color='lightcoral', alpha=0.3)  # Faixa de tensão precária
 plt.axhspan(0, 110, color='lightcoral', alpha=0.3)  # Faixa de tensão precária
-plt.xlabel('tempo (h)', fontsize=15)
+plt.xlabel('Horário (h)', fontsize=15)
 plt.ylabel('Tensão (V)', fontsize=15)
-plt.title(f'Perfil Diário de Tensão ({status_bat} Storage)', fontsize=15)  # Usando f-string para incluir o valor de status_bat
+plt.title(f'Tensões de fase ({status_bat} Storage)', fontsize=15)  # Usando f-string para incluir o valor de status_bat
 plt.legend(fontsize=11, loc='upper right')
 plt.tick_params(axis='x', labelsize=12)
 plt.tick_params(axis='y', labelsize=12)
@@ -156,44 +149,38 @@ plt.show()
 
 # Plotando resultados de potência ativa no trafo
 plt.figure(figsize=(6, 6))
-plt.plot(last_24_hours_2['tempo'], last_24_hours_2['kW_a'], label='Fase A', color='red')
-plt.plot(last_24_hours_2['tempo'], last_24_hours_2['kW_b'], label='Fase B', color='blue')
-plt.plot(last_24_hours_2['tempo'], last_24_hours_2['kW_c'], label='Fase C', color='green')
-plt.xlabel('tempo (h)', fontsize=15)
+plt.plot(last_24_hours_2['tempo'], last_24_hours_2['kW_total'], color='red')
+plt.xlabel('Horário (h)', fontsize=15)
 plt.ylabel('Potência Ativa (kW)', fontsize=15)
-plt.title(f'Perfil Diário de Carregamento ({status_bat} Storage)', fontsize=15)  # Usando f-string para incluir o valor de status_bat
-plt.legend(fontsize=11, loc='upper right')
+plt.title(f'Carregamento ({status_bat} Storage)', fontsize=15)  # Usando f-string para incluir o valor de status_bat
 plt.tick_params(axis='x', labelsize=12)
 plt.tick_params(axis='y', labelsize=12)
 plt.grid(True, linestyle='--')
-plt.ylim(-30, 50)
+plt.ylim(-30, 120)
 plt.xlim(0, 24)
 plt.xticks(np.arange(0, 25, 2))
 plt.show()
 
 # Plotando resultados de potência reativa no trafo
 plt.figure(figsize=(6, 6))
-plt.plot(last_24_hours_3['tempo'], last_24_hours_3['kvar_a'], label='Fase A', color='red')
-plt.plot(last_24_hours_3['tempo'], last_24_hours_3['kvar_b'], label='Fase B', color='blue')
-plt.plot(last_24_hours_3['tempo'], last_24_hours_3['kvar_c'], label='Fase C', color='green')
-plt.xlabel('tempo (h)', fontsize=15)
+plt.plot(last_24_hours_3['tempo'], last_24_hours_3['kvar_total'], color='red')
+plt.xlabel('Horário (h)', fontsize=15)
 plt.ylabel('Potência Reativa (kvar)', fontsize=15)
-plt.title(f'Perfil Diário de Carregamento ({status_bat} Storage)', fontsize=15)  # Usando f-string para incluir o valor de status_bat
-plt.legend(fontsize=11, loc='upper right')
+plt.title(f'Carregamento ({status_bat} Storage)', fontsize=15)  # Usando f-string para incluir o valor de status_bat
 plt.tick_params(axis='x', labelsize=12)
 plt.tick_params(axis='y', labelsize=12)
 plt.grid(True, linestyle='--')
-plt.ylim(0, 15)
+plt.ylim(0, 30)
 plt.xlim(0, 24)
 plt.xticks(np.arange(0, 25, 2))
 plt.show()
 
 # Plotando resultados de potência aparente no trafo
 plt.figure(figsize=(6, 6))
-plt.plot(last_24_hours_4['tempo'], last_24_hours_4['kVA_total'], label='Stotal', color='black')
-plt.xlabel('tempo (h)', fontsize=15)
+plt.plot(last_24_hours_4['tempo'], last_24_hours_4['kVA_total'], color='black')
+plt.xlabel('Horário (h)', fontsize=15)
 plt.ylabel('Potência Aparente (kVA)', fontsize=15)
-plt.title(f'Perfil Diário de Carregamento ({status_bat} Storage)', fontsize=15)  # Usando f-string para incluir o valor de status_bat
+plt.title(f'Carregamento ({status_bat} Storage)', fontsize=15)  # Usando f-string para incluir o valor de status_bat
 plt.tick_params(axis='x', labelsize=12)
 plt.tick_params(axis='y', labelsize=12)
 plt.grid(True, linestyle='--')
@@ -204,5 +191,7 @@ plt.ylim(0, 150)
 plt.xlim(0, 24)
 plt.xticks(np.arange(0, 25, 2))
 plt.show()
+
+
 
 
