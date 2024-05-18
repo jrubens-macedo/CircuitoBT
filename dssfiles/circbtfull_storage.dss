@@ -1,0 +1,129 @@
+Clear
+
+// Definição dos Loadshapes
+Redirect loadshapes.dss
+
+// Equivalente de Thevenin
+New Circuit.MT phases=3 basekv=13.8 pu=1.025 bus1=P0.1.2.3 frequency=60 R1=0 X1=0.00001
+
+// Transformador
+New Transformer.TRAFO phases=3 windings=2 buses=(P0.1.2.3  P1.1.2.3.4) Conns=(Delta wye)  kvs=(13.8 0.22)  kVas=(75 75) Taps=[1.0  1.0]  %loadloss=0.3807 %noloadloss=0.002
+New Reactor.TRAFO_R phases=1 bus1=P1.4 Bus2=P1.0 R=15.0  X=0 basefreq=60
+
+// Definição dos cabos
+New Linecode.Cabo2CA nphases=4 basefreq=60 r1=0.9632 x1=0.3420 r0=3.8528 x0=1.3680 units=km normamps=138
+New Linecode.Cabo4CA nphases=4 basefreq=60 r1=1.5285 x1=0.3603 r0=6.1140 x0=1.4412 units=km normamps=100
+
+// Definição dos trechos de rede BT
+New Line.P1_P2 phases=4 bus1=P1.1.2.3.4 bus2=P2.1.2.3.4 length=0.030 linecode=Cabo2CA
+New Line.P2_P3 phases=4 bus1=P2.1.2.3.4 bus2=P3.1.2.3.4 length=0.030 linecode=Cabo2CA
+New Line.P3_P4 phases=4 bus1=P3.1.2.3.4 bus2=P4.1.2.3.4 length=0.030 linecode=Cabo2CA
+New Line.P4_P5 phases=4 bus1=P4.1.2.3.4 bus2=P5.1.2.3.4 length=0.030 linecode=Cabo2CA
+New Line.P5_P6 phases=4 bus1=P5.1.2.3.4 bus2=P6.1.2.3.4 length=0.030 linecode=Cabo2CA
+New Line.P6_P7 phases=4 bus1=P6.1.2.3.4 bus2=P7.1.2.3.4 length=0.030 linecode=Cabo2CA
+New Line.P1_P8 phases=4 bus1=P1.1.2.3.4 bus2=P8.1.2.3.4 length=0.030 linecode=Cabo2CA
+New Line.P8_P9 phases=4 bus1=P8.1.2.3.4 bus2=P9.1.2.3.4 length=0.030 linecode=Cabo4CA
+New Line.P9_P10 phases=4 bus1=P9.1.2.3.4 bus2=P10.1.2.3.4 length=0.030 linecode=Cabo4CA
+New Line.P10_P11 phases=4 bus1=P10.1.2.3.4 bus2=P11.1.2.3.4 length=0.030 linecode=Cabo4CA
+New Line.P8_P12 phases=4 bus1=P8.1.2.3.4 bus2=P12.1.2.3.4 length=0.030 linecode=Cabo2CA
+New Line.P12_P13 phases=4 bus1=P12.1.2.3.4 bus2=P13.1.2.3.4 length=0.030 linecode=Cabo2CA
+New Line.P13_P14 phases=4 bus1=P13.1.2.3.4 bus2=P14.1.2.3.4 length=0.030 linecode=Cabo4CA
+New Line.P14_P15 phases=4 bus1=P14.1.2.3.4 bus2=P15.1.2.3.4 length=0.030 linecode=Cabo4CA
+
+// Alocação das cargas de unidades consumidoras
+New Load.P1_1 Bus1=P1.2.3.4 phases=1 conn=wye Model=2 kV=0.22 kW=2.00 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable 
+New Load.P1_2 Bus1=P1.1.2.3.4 phases=3 conn=delta Model=2 kV=0.22 kW=3.00 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable 
+New Load.P2_2 Bus1=P2.1.3.4 phases=1 conn=wye Model=2 kV=0.22 kW=2.00 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable 
+New Load.P2_3 Bus1=P2.2.4 phases=1 conn=wye Model=2 kV=0.22 kW=1.50 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable 
+New Load.P3_2 Bus1=P3.1.4 phases=1 conn=wye Model=2 kV=0.22 kW=1.20 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable 
+New Load.P4_1 Bus1=P4.3.4 phases=1 conn=wye Model=2 kV=0.22 kW=2.00 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable 
+New Load.P4_2 Bus1=P4.2.3.4 phases=1 conn=wye Model=2 kV=0.22 kW=2.20 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable 
+New Load.P5_2 Bus1=P5.1.2.3.4 phases=3 conn=delta Model=2 kV=0.22 kW=5.00 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable 
+New Load.P6_2 Bus1=P6.2.4 phases=1 conn=wye Model=2 kV=0.22 kW=1.8 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable 
+New Load.P8_2 Bus1=P8.1.4 phases=1 conn=wye Model=2 kV=0.22 kW=2.00 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable 
+New Load.P8_3 Bus1=P8.1.2.4 phases=1 conn=wye Model=2 kV=0.22 kW=2.50 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable
+New Load.P9_1 Bus1=P9.2.4 phases=1 conn=wye Model=2 kV=0.22 kW=1.2 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable
+New Load.P9_2 Bus1=P9.2.3.4 phases=1 conn=wye Model=2 kV=0.22 kW=3.5 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable
+New Load.P10_2 Bus1=P10.1.3.4 phases=1 conn=wye Model=2 kV=0.22 kW=2.6 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable
+New Load.P11_1 Bus1=P11.1.2.3.4 phases=1 conn=delta Model=2 kV=0.22 kW=4.0 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable
+New Load.P11_2 Bus1=P11.1.4 phases=1 conn=wye Model=2 kV=0.22 kW=1.70 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable
+New Load.P13_1 Bus1=P13.3.4 phases=1 conn=wye Model=2 kV=0.22 kW=2.00 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable
+New Load.P13_2 Bus1=P13.2.3.4 phases=1 conn=wye Model=2 kV=0.22 kW=3.00 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable
+New Load.P15_1 Bus1=P15.3.4 phases=1 conn=wye Model=2 kV=0.22 kW=1.2 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable
+New Load.P15_2 Bus1=P15.2.3.4 phases=1 conn=wye Model=2 kV=0.22 kW=2.5 pf=0.92 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaCARGA status=variable
+
+New Load.P2_1 Bus1=P2.2.3.4 phases=1 conn=wye Model=3 kV=0.22 kW=2.0 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaGD_CARGA status=variable
+New Load.P3_1 Bus1=P3.1.2.3.4 phases=3 conn=delta Model=3 kV=0.22 kW=6.00 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaGD_CARGA status=variable 
+New Load.P5_1 Bus1=P5.1.3.4 phases=1 conn=wye Model=3 kV=0.22 kW=8.00 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaGD_CARGA status=variable 
+New Load.P6_1 Bus1=P6.1.2.4 phases=1 conn=wye Model=3 kV=0.22 kW=5.00 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaGD_CARGA status=variable 
+New Load.P7_1 Bus1=P7.1.2.3.4 phases=3 conn=delta Model=3 kV=0.22 kW=7.0 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaGD_CARGA status=variable 
+New Load.P8_1 Bus1=P8.2.3.4 phases=1 conn=wye Model=3 kV=0.22 kW=5.00 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaGD_CARGA status=variable 
+New Load.P10_1 Bus1=P10.1.2.3.4 phases=3 conn=delta Model=3 kV=0.22 kW=8.0 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaGD_CARGA status=variable
+New Load.P12_1 Bus1=P12.1.2.4 phases=1 conn=wye Model=3 kV=0.22 kW=5.00 pf=1.00 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaGD_CARGA status=variable
+New Load.P12_2 Bus1=P12.2.3.4 phases=1 conn=wye Model=3 kV=0.22 kW=6.00 pf=1.00 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaGD_CARGA status=variable
+New Load.P14_1 Bus1=P14.1.2.3.4 phases=3 conn=delta Model=3 kV=0.22 kW=8.0 pf=1.00 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaGD_CARGA status=variable
+
+New Generator.P2_1_G Bus1=P2.2.3.4 kv=0.22 kw=2.00 pf=1 model=7 daily=CurvaGD_GEN phases=1 conn=wye
+New Generator.P3_1_G Bus1=P3.1.2.3.4 kv=0.22 kw=6.00 pf=1 model=7 daily=CurvaGD_GEN phases=3 conn=delta
+New Generator.P5_1_G Bus1=P5.1.3.4 kv=0.22 kw=8.00 pf=1 model=7 daily=CurvaGD_GEN phases=1 conn=wye
+New Generator.P6_1_G Bus1=P6.1.2.4 kv=0.22 kw=5.00 pf=1 model=7 daily=CurvaGD_GEN phases=1 conn=wye
+New Generator.P7_1_G Bus1=P7.1.2.3.4 kv=0.22 kw=7.00 pf=1 model=7 daily=CurvaGD_GEN phases=3 conn=delta
+New Generator.P8_1_G Bus1=P8.2.3.4 kv=0.22 kw=5.00 pf=1 model=7 daily=CurvaGD_GEN phases=1 conn=wye
+New Generator.P10_1_G Bus1=P10.1.2.3.4 kv=0.22 kw=8.00 pf=1 model=7 daily=CurvaGD_GEN phases=3 conn=wye
+New Generator.P12_1_G Bus1=P12.1.2.4 kv=0.22 kw=5.00 pf=1 model=7 daily=CurvaGD_GEN phases=1 conn=wye
+New Generator.P12_2_G Bus1=P12.2.3.4 kv=0.22 kw=6.00 pf=1 model=7 daily=CurvaGD_GEN phases=1 conn=wye
+New Generator.P14_1_G Bus1=P14.1.2.3.4 kv=0.22 kw=8.00 pf=1 model=7 daily=CurvaGD_GEN phases=3 conn=delta
+
+// Alocação das cargas de iluminação pública (IP)
+New Load.P1_IP Bus1=P1.1.2.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P2_IP Bus1=P2.2.3.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P3_IP Bus1=P3.1.3.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P4_IP Bus1=P4.1.2.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P5_IP Bus1=P5.2.3.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P6_IP Bus1=P6.1.3.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P7_IP Bus1=P7.1.2.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P8_IP Bus1=P8.2.3.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P9_IP Bus1=P9.1.3.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P10_IP Bus1=P10.1.2.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P11_IP Bus1=P11.2.3.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P12_IP Bus1=P12.1.3.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P13_IP Bus1=P13.1.2.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P14_IP Bus1=P14.2.3.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+New Load.P15_IP Bus1=P15.1.3.4 phases=1 conn=wye Model=5 kV=0.22 kW=0.15 pf=1.0 Vminpu=0.92 Vmaxpu=1.50 daily=CurvaIP status=variable 
+
+// Alocação das baterias (storage)
+!New Storage.BateriaP7 bus=P7.1.2.3.4 phases=3 kv=0.22 conn=wye kwrated=30 kwhrated=150 dispmode=follow daily=CurvaBAT
+
+// Monitores
+!New Monitor.VP1 element= Transformer.TRAFO terminal=2 mode=0
+!New Monitor.VP2 element= Line.P1_P2 terminal=2 mode=0
+!New Monitor.VP3 element= Line.P2_P3 terminal=2 mode=0
+!New Monitor.VP4 element= Line.P3_P4 terminal=2 mode=0
+!New Monitor.VP5 element= Line.P4_P5 terminal=2 mode=0
+!New Monitor.VP6 element= Line.P5_P6 terminal=2 mode=0
+!New Monitor.VP7 element= Line.P6_P7 terminal=2 mode=0
+!New Monitor.VP8 element= Line.P1_P8 terminal=2 mode=0
+!New Monitor.VP9 element= Line.P8_P9 terminal=2 mode=0
+!New Monitor.VP10 element= Line.P9_P10 terminal=2 mode=0
+!New Monitor.VP11 element= Line.P10_P11 terminal=2 mode=0
+!New Monitor.VP12 element= Line.P8_P12 terminal=2 mode=0
+!New Monitor.VP13 element= Line.P12_P13 terminal=2 mode=0
+!New Monitor.VP14 element= Line.P13_P14 terminal=2 mode=0
+!New Monitor.VP15 element= Line.P14_P15 terminal=2 mode=0
+!New Monitor.PTRAFO element= Transformer.Trafo terminal=1 mode=1 ppolar=no
+
+!New monitor.BAT_P7_power element=Storage.BateriaP7 terminal=1 mode=1 ppolar=no
+!New monitor.BAT_P7_voltage element=Storage.BateriaP7 terminal=1 mode=0
+!New monitor.BAT_P7_variables element=Storage.BateriaP7 terminal=1 mode=3
+
+// Medidor de Energia
+!New EnergyMeter.ETRAFO element= Transformer.TRAFO terminal=1
+
+Set voltagebases=[13.8 0.22 ]
+Calcvoltagebases
+
+!Set mode=Daily 
+!Set stepsize=10m 
+!Set number=288
+
+!Solve
