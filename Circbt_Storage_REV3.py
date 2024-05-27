@@ -74,9 +74,6 @@ values2 = df['CurvaGD'].tolist()
 values3 = df['CurvaIP'].tolist()
 values4 = df['CurvaBAT'].tolist()
 
-# Exibição do DataFrame atualizado
-# print(df)
-
 ############################
 ### Executando o DSS #######
 ############################
@@ -108,6 +105,7 @@ lines = dss.lines.names
 for i in lines:
     dss.text(f"New Monitor.V_{i} element =Line.{i} terminal=2 mode=0")  # mode = 0 -> medição de tensões
 
+# Definindo parâmetros das baterias do circuito
 poste_bat1 = "P7"     # definição do poste para conexão das baterias
 kwrated_bat1 = 20     # definição do kW da bateria
 kwhrated_bat1 = 100   # definição do kWh da bateria
@@ -286,4 +284,43 @@ axs[1, 1].tick_params(axis='both', which='major', labelsize=tick_size)
 
 # Ajustar o layout
 plt.tight_layout()
+plt.show()
+
+######## NOVA PLOTAGEM DAS TENSÕES DOS POSTES AO LONGO DE 24 HORAS ########################################
+
+# Função para extrair o nome da barra a partir do nome da linha
+def extrair_nome_barra(nome_linha):
+    return nome_linha.split('_')[-1].capitalize()
+
+# Inicializando um DataFrame para armazenar as tensões de todos os postes
+df_tensoes_postes = pd.DataFrame({'tempo': time_hours})
+
+# Iterando sobre todas as linhas para extrair as tensões das barras
+
+for line in lines:
+    barra = extrair_nome_barra(line)
+    monitor.name = f"V_{line}"
+    tensao_fase_a = np.array(monitor.channel(1))  # Supondo Va = canal1
+    df_tensoes_postes[f'{barra}'] = tensao_fase_a
+
+# Plotando as tensões de todos os postes
+plt.figure(figsize=(10, 8))
+for coluna in df_tensoes_postes.columns[1:]:  # Pulando a coluna 'tempo'
+    plt.step(df_tensoes_postes['tempo'], df_tensoes_postes[coluna], where='post', label=coluna)
+
+plt.xlabel('Horário (h)', fontsize=15)
+plt.ylabel('Tensão (V)', fontsize=15)
+plt.title(f'Tensões da fase A em todos os postes do circuito ({status_bat} Storage)', fontsize=15)
+plt.axhspan(117, 133, color='lightgreen', alpha=0.3)  # Faixa de tensão adequada
+plt.axhspan(133, 135, color='yellow', alpha=0.3)  # Faixa de tensão precária
+plt.axhspan(110, 117, color='yellow', alpha=0.3)  # Faixa de tensão precária
+plt.axhspan(135, 150, color='lightcoral', alpha=0.3)  # Faixa de tensão precária
+plt.axhspan(0, 110, color='lightcoral', alpha=0.3)  # Faixa de tensão precária
+plt.legend(fontsize=10, loc='lower center', ncol=8)
+plt.tick_params(axis='x', labelsize=12)
+plt.tick_params(axis='y', labelsize=12)
+plt.grid(True, linestyle='--')
+plt.ylim(100, 140)
+plt.xlim(0, 24)
+plt.xticks(np.arange(0, 25, 2))
 plt.show()
