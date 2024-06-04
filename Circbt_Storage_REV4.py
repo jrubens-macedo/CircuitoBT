@@ -10,6 +10,7 @@ import py_dss_interface
 import numpy as np
 import matplotlib.pyplot as plt
 import re
+import plotly.graph_objects as go
 
 ############################
 ### Simulação no OpenDSS ###
@@ -23,10 +24,10 @@ file_dss = os.path.join(os.path.dirname(__file__), 'dssfiles/circbtfull_storage.
 file_dss_loadshapes = os.path.join(os.path.dirname(__file__), 'dssfiles/loadshapes.dss') ## Chama o dss principal usando a os
 
 ##########################################
-# Adicionando Baterias ao circuito
+# Adicionando baterias ao circuito
 ##########################################
 
-bateria = "n"    # definição de inclusão ou não das baterias em um determinado poste (s=sim n=não)
+bateria = "s"    # definição de inclusão ou não das baterias em um determinado poste (s=sim n=não)
 socbat = 0       # definição do SOC inicial das baterias (0 a 100%)
 
 if bateria == "s":
@@ -139,6 +140,48 @@ monitor_q_c = np.array(monitor.channel(6))  # Supondo Qc = canal6
 monitor_ptotal = (monitor_p_a + monitor_p_b + monitor_p_c)
 monitor_qtotal = (monitor_q_a + monitor_q_b + monitor_q_c)
 monitor_stotal = np.sqrt(monitor_ptotal**2 + monitor_qtotal**2)
+
+## Calculando DRP e DRC
+
+# Calculando DRP e DRC fase A
+registros_precaria_inferior_a = sum(1 for valor in monitor_v_a if valor >= 110 and valor < 117)
+registros_precaria_superior_a = sum(1 for valor in monitor_v_a if valor > 133 and valor <= 135)
+DRP_A = 100*((registros_precaria_superior_a + registros_precaria_inferior_a)) / len(monitor_v_a)
+registros_critica_inferior_a = sum(1 for valor in monitor_v_a if valor < 110)
+registros_critica_superior_a = sum(1 for valor in monitor_v_a if valor > 135)
+DRC_A = 100*((registros_critica_superior_a + registros_critica_inferior_a)) / len(monitor_v_a)
+
+# Calculando DRP e DRC fase B
+registros_precaria_inferior_b = sum(1 for valor in monitor_v_b if valor >= 110 and valor < 117)
+registros_precaria_superior_b = sum(1 for valor in monitor_v_b if valor > 133 and valor <= 135)
+DRP_B = 100*((registros_precaria_superior_b + registros_precaria_inferior_b)) / len(monitor_v_b)
+registros_critica_inferior_b = sum(1 for valor in monitor_v_b if valor < 110)
+registros_critica_superior_b = sum(1 for valor in monitor_v_b if valor > 135)
+DRC_B = 100*((registros_critica_superior_b + registros_critica_inferior_b)) / len(monitor_v_b)
+
+# Calculando DRP e DRC fase C
+registros_precaria_inferior_c = sum(1 for valor in monitor_v_c if valor >= 110 and valor < 117)
+registros_precaria_superior_c = sum(1 for valor in monitor_v_c if valor > 133 and valor <= 135)
+DRP_C = 100*((registros_precaria_superior_c + registros_precaria_inferior_c)) / len(monitor_v_c)
+registros_critica_inferior_c = sum(1 for valor in monitor_v_c if valor < 110)
+registros_critica_superior_c = sum(1 for valor in monitor_v_c if valor > 135)
+DRC_C = 100*((registros_critica_superior_c + registros_critica_inferior_c)) / len(monitor_v_c)
+
+# Calculando o percentil 99% e 1%
+percentil_99_a = np.percentile(monitor_v_a, 99)
+percentil_1_a = np.percentile(monitor_v_a, 1)
+percentil_99_b = np.percentile(monitor_v_b, 99)
+percentil_1_b = np.percentile(monitor_v_b, 1)
+percentil_99_c = np.percentile(monitor_v_c, 99)
+percentil_1_c = np.percentile(monitor_v_c, 1)
+
+print('************ Indicadores de tensão em regime permanente **************')
+print('                Fase A        Fase B       Fase C')
+print(f'DRP             {DRP_A:0.2f}%         {DRP_B:0.2f}%        {DRP_C:0.2f}%')
+print(f'DRC             {DRC_A:0.2f}%         {DRC_B:0.2f}%        {DRC_C:0.2f}%')
+print(f'P99%            {percentil_99_a:0.2f}        {percentil_99_b:0.2f}       {percentil_99_c:0.2f}')
+print(f'P1%             {percentil_1_a:0.2f}        {percentil_1_b:0.2f}       {percentil_1_c:0.2f}')
+print('**********************************************************************')
 
 # Convertendo dados para DataFrames
 df1 = pd.DataFrame({
@@ -291,8 +334,7 @@ plt.show()
 
 # Função para extrair o nome da barra a partir do nome da linha
 
-
-Fase_desejada = 5     # Fase A = 1, Fase B = 3 e Fase C = 5
+Fase_desejada = 1     # Fase A = 1, Fase B = 3 e Fase C = 5
 
 if Fase_desejada == 1:
      fase_escolhida = "A"
@@ -315,15 +357,15 @@ df_tensoes_postes = pd.DataFrame({'tempo': time_hours})
 # Armazenando as tensões da Fase A apenas da barra P1
 barra = "P1"
 monitor.name = "V_P0_P1"
-tensao_fase_a = np.array(monitor.channel(Fase_desejada))  # Supondo Va = canal1
-df_tensoes_postes[f'{barra}'] = tensao_fase_a
+tensao_fase = np.array(monitor.channel(Fase_desejada))  # Supondo Va = canal1
+df_tensoes_postes[f'{barra}'] = tensao_fase
 
 # Armazenando as tensões da Fase A das demais barras
 for line in lines:
     barra = extrair_nome_barra(line)
     monitor.name = f"V_{line}"
-    tensao_fase_a = np.array(monitor.channel(Fase_desejada))  # Supondo Va = canal1
-    df_tensoes_postes[f'{barra}'] = tensao_fase_a
+    tensao_fase = np.array(monitor.channel(Fase_desejada))  # Supondo Va = canal1
+    df_tensoes_postes[f'{barra}'] = tensao_fase
 
 # Plotando as tensões de todos os postes
 plt.figure(figsize=(10, 8))
@@ -346,3 +388,39 @@ plt.ylim(100, 140)
 plt.xlim(0, 24)
 plt.xticks(np.arange(0, 25, 2))
 plt.show()
+
+#############################################################
+
+## Criando arquivo grafico em html
+
+fig = go.Figure()
+# Adicionando os traços para cada coluna (poste)
+for coluna in df_tensoes_postes.columns[1:]:  # Pulando a coluna 'tempo'
+    fig.add_trace(go.Scatter(
+        x=df_tensoes_postes['tempo'],
+        y=df_tensoes_postes[coluna],
+        mode='lines',
+        name=coluna,
+        line_shape='hv'  # Para criar o step plot
+    ))
+# Adicionando as faixas de tensão
+fig.add_shape(type="rect", x0=0, x1=24, y0=117, y1=133, fillcolor="lightgreen", opacity=0.3, line_width=0)
+fig.add_shape(type="rect", x0=0, x1=24, y0=133, y1=135, fillcolor="yellow", opacity=0.3, line_width=0)
+fig.add_shape(type="rect", x0=0, x1=24, y0=110, y1=117, fillcolor="yellow", opacity=0.3, line_width=0)
+fig.add_shape(type="rect", x0=0, x1=24, y0=135, y1=150, fillcolor="lightcoral", opacity=0.3, line_width=0)
+fig.add_shape(type="rect", x0=0, x1=24, y0=0, y1=110, fillcolor="lightcoral", opacity=0.3, line_width=0)
+# Atualizando o layout do gráfico
+fig.update_layout(
+    title=f'{item} Tensões da fase {fase_escolhida} em todos os postes do circuito ({status_bat} Storage)',
+    xaxis_title='Horário (h)',
+    yaxis_title='Tensão (V)',
+    xaxis=dict(tickmode='linear', tick0=0, dtick=2),
+    yaxis=dict(range=[100, 140]),
+    legend=dict(font=dict(size=10), orientation='h', x=0.5, xanchor='center', y=-0.2),
+    margin=dict(l=40, r=40, t=40, b=40)
+)
+# Salvando a figura em HTML
+fig.write_html("grafico_tensoes_barras.html")
+
+
+
