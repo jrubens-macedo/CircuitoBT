@@ -380,20 +380,21 @@ for line in lines:
     df_tensoes_postes[f'{barra}'] = tensao_fase
 
 # Plotando as tensões de todos os postes
-plt.figure(figsize=(10, 8))
+plt.figure(figsize=(7, 7))
 for coluna in df_tensoes_postes.columns[1:]:  # Pulando a coluna 'tempo'
     plt.step(df_tensoes_postes['tempo'], df_tensoes_postes[coluna], where='post', label=coluna)
 
 plt.xlabel('Horário (h)', fontsize=18)
 plt.ylabel('Tensão (V)', fontsize=18)
 #plt.title(f'{item} Tensões da fase {fase_escolhida} em todos os postes do circuito ({status_bat} Storage)', fontsize=15)
-plt.title('(b)', fontsize=20)
+plt.title('(a)', fontsize=20)
 plt.axhspan(117, 133, color='lightgreen', alpha=0.3)  # Faixa de tensão adequada
 plt.axhspan(133, 135, color='yellow', alpha=0.3)  # Faixa de tensão precária
 plt.axhspan(110, 117, color='yellow', alpha=0.3)  # Faixa de tensão precária
 plt.axhspan(135, 150, color='lightcoral', alpha=0.3)  # Faixa de tensão precária
 plt.axhspan(0, 110, color='lightcoral', alpha=0.3)  # Faixa de tensão precária
-plt.legend(fontsize=11, loc='lower center', ncol=8)
+#plt.legend(fontsize=11, loc='lower center', ncol=8)
+plt.legend(fontsize=12, loc='lower center', ncol=5)
 plt.tick_params(axis='x', labelsize=16)
 plt.tick_params(axis='y', labelsize=16)
 plt.grid(True, linestyle='--')
